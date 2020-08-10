@@ -1,0 +1,54 @@
+spring:
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true #服务名小写
+#      routes:
+#      - id: consul-service-consumer
+#        uri: lb://consul-service-consumer
+#        predicates:
+#        - Path=/consul-gateway/**
+#        - After=2020-08-05T14:57:01.349+08:00[Asia/Shanghai]
+#        filters: # 加上StripPrefix=1，否则转发到后端服务时会带上consul-gateway前缀
+#        - StripPrefix=1
+#        - name: Retry #过滤器工厂名称
+#          args:
+#            retries: 2 #重试次数，默认为3
+#        - name: Hystrix #熔断，请求失败或出现异常的时候进行服务降级
+#          args:
+#            name: hystrix-cmd
+#            fallbackUri: forward:/api/gateway/fallback
+    consul: # 注册gateway网关到consul
+      host: 127.0.0.1
+      port: 8500
+      discovery:
+        enabled: true #启用服务发现
+        register: true #启用服务注册
+        deregister: true #服务停止时取消注册
+        healthCheckPath: /actuator/health #健康检查的路径
+        healthCheckInterval: 10s #执行监控检查的频率
+        service-name: gateway-service
+
+resilience4j:
+  ratelimiter:
+    limiters:
+      user: #名称为user的限速器
+        limitForPeriod: 2 #时间戳内限制通过请求数
+        limitRefreshPeriod: 5000 #配置时间戳（单位毫秒）
+        timeoutDuration: 100 #超时时间
+
+log:
+  path: /logs
+  proName: springboot
+  rootLevel: info # info debug
+# 暴露监控端点
+#management:
+#  endpoints:
+#    web:
+#      exposure:
+#        include: '*'
+#  endpoint:
+#    health:
+#      show-details: always

@@ -1,0 +1,15 @@
+spring:
+  cloud:
+    consul:
+      host: localhost #10.0.1.10 47.94.134.148
+      port: 8500
+      config:
+        enabled: true #false禁用Consul配置，默认true
+        prefix: config #设置配置值的基本文件夹
+        defaultContext: application #设置所有应用程序使用的文件夹名称
+        profileSeparator: "::" #设置用于使用配置文件在属性源中分隔配置文件名称的分隔符的值
+        format: YAML    # 表示consul上面文件的格式 有四种 YAML PROPERTIES KEY-VALUE FILES
+        data-key: data    #表示consul上面的KEY值(或者说文件的名字) 默认是data
+        watch:
+          enabled: true
+          delay: 1000

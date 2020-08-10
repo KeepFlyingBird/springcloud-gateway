@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" debug="false">
+    <!--加载配置文件-->
+    <property resource="application.yml"/>
+    <!--读取配置文件中变量，并赋值给name-->
+    <springProperty scope="context" name="LOG_PATH" source="log.path"/><!--绝对路径-->
+    <springProperty scope="context" name="PRO_NAME" source="log.proName"/>
+    <springProperty scope="context" name="ROOT_LEVEL" source="log.rootLevel"/>
+    <!--默认配置-->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <!--配置控制台(Console)-->
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+
+    <!--输出到控制台-->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+<!--        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">-->
+<!--            <level>info</level>-->
+<!--        </filter>-->
+        <encoder>
+            <!--格式化输出：%d:表示日期    %thread:表示线程名     %-5level:级别从左显示5个字符宽度  %msg:日志消息    %n:是换行符-->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{0} - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!--输出到日志文件(File)-->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!--设置策略-->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!--日志文件路径：这里%d{yyyyMMdd}表示按天分类日志-->
+            <FileNamePattern>${LOG_PATH}/${PRO_NAME}/${PRO_NAME}-%d{yyyyMMdd}.log</FileNamePattern>
+            <!--日志保留天数-->
+            <MaxHistory>15</MaxHistory>
+        </rollingPolicy>
+        <!--设置格式-->
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度，%msg：日志消息，%n是换行符-->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{0} - %msg%n</pattern>
+            <charset>utf8</charset>
+        </encoder>
+        <!--日志文件最大的大小-->
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <MaxFileSize>150MB</MaxFileSize>
+        </triggeringPolicy>
+    </appender>
+
+    <!-- 将文件输出设置成异步输出 -->
+    <appender name="ASYNC-FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <!-- 不丢失日志.默认的,如果队列的80%已满,则会丢弃TRACT、DEBUG、INFO级别的日志 -->
+        <discardingThreshold>0</discardingThreshold>
+        <!-- 更改默认的队列的深度,该值会影响性能.默认值为256 -->
+        <queueSize>1024</queueSize>
+        <!-- 添加附加的appender,最多只能添加一个 -->
+        <appender-ref ref="FILE"/>
+    </appender>
+    <!--root节点 全局日志级别，用来指定最基础的日志输出级别-->
+    <root level="${ROOT_LEVEL}">
+        <appender-ref ref="console"/>
+<!--        <appender-ref ref="ASYNC-FILE"/>-->
+    </root>
+</configuration>
